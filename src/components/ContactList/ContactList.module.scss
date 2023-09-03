@@ -48,3 +48,15 @@
   box-shadow: #d6d6e7 0 3px 7px inset;
   transform: translateY(2px);
 }
+.contact_list {
+  display: flex;
+  width: 1000px;
+  flex-wrap: wrap;
+  row-gap: 30px;
+}
+.contact__item {
+  width: calc((100% - 3 * 7px) / 4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

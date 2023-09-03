@@ -1,81 +1,45 @@
-// import React, {  } from 'react';
-import ContactForm from './components/ContactForm/ContactForm';
-import ContactList from './components/ContactList/ContactList';
+import Layout from 'components/Layout/Layout';
+// import { HomePage } from './pages/HomePage/homePage';
+// import Registration from './pages/Registration';
+// import Login from './pages/Login';
+import { Route, Routes } from 'react-router-dom';
+import { lazy, useEffect } from 'react';
+import { RestrictedRoute } from 'components/RestrictedRoute';
+import { PrivateRoute } from 'components/PrivateRoute';
+import { useDispatch } from 'react-redux';
+import { refreshUser } from 'Store/auth/operations';
 
-import ContactFilter from './components/ContactFilter/ContactFilter';
-import { useDispatch, useSelector } from 'react-redux';
-
-import { nanoid } from 'nanoid';
-import { useEffect } from 'react';
-import {
-  addContact,
-  deleteContactbyId,
-  getContacts,
-} from 'Store/contactSliceOperations';
-import { selectContacts, selectFilter, updateFilter } from 'Store/contactSlice';
-
-function filterByString(field, filterValue) {
-  return field.toLowerCase().trim().includes(filterValue.toLowerCase().trim());
-}
+const HomePage = lazy(() => import('./pages/HomePage/homePage'));
+const Registration = lazy(() => import('./pages/Registration'));
+const Login = lazy(() => import('./pages/Login'));
 
 export const App = () => {
   const dispatch = useDispatch();
 
-  const filter = useSelector(selectFilter);
-
-  const contacts = useSelector(selectContacts);
-
-  const isLoading = useSelector(state => state.contacts.isLoading);
-  const error = useSelector(state => state.contacts.error);
-
   useEffect(() => {
-    dispatch(getContacts());
+    dispatch(refreshUser());
   }, [dispatch]);
 
-  const onDeleteContact = contactId => {
-    dispatch(deleteContactbyId(contactId));
-  };
-
-  const onAddContact = ({ name, number }) => {
-    if (
-      contacts.some(
-        contact =>
-          contact.name.toLowerCase() === name.toLowerCase() ||
-          contact.number.toLowerCase() === number.toLowerCase()
-      )
-    ) {
-      alert(`${name} or entered number is already in contacts.`);
-      return;
-    }
-
-    dispatch(addContact({ name, number, id: nanoid() }));
-  };
-
-  const onChangeFilter = ({ target: { value } }) => {
-    dispatch(updateFilter(value.toString()));
-  };
-
-  const filteredContacts = contacts.filter(
-    contact =>
-      filterByString(contact.name, filter) ||
-      filterByString(contact.number, filter)
-  );
-
   return (
-    <>
-      {error && <p>error</p>}
-      {isLoading && <p>Loading...</p>}
-      <h1>Phonebook</h1>
-      <ContactForm onAddContact={onAddContact} />
-
-      <h2>Contacts</h2>
-
-      <ContactFilter filter={filter} onChangeFilter={onChangeFilter} />
-
-      <ContactList
-        contacts={filteredContacts}
-        onDeleteContact={onDeleteContact}
-      />
-    </>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route
+          index
+          element={
+            <PrivateRoute redirectTo="/register" component={<HomePage />} />
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <RestrictedRoute redirectTo="/" component={<Registration />} />
+          }
+        />
+        <Route
+          path="/login"
+          element={<RestrictedRoute redirectTo="/" component={<Login />} />}
+        />
+      </Route>
+    </Routes>
   );
 };

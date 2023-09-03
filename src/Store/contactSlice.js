@@ -5,10 +5,15 @@ import {
 } from './contactSliceOperations';
 
 const { createSlice } = require('@reduxjs/toolkit');
-export const selectContacts = state => state.contacts.items;
-export const selectFilter = state => state.filter;
-export const selectError = state => state.contacts.error;
-export const selectIsLoading = state => state.contacts.isLoading;
+export const selectContacts = state => state.contactsReducer.contacts.items;
+
+export const selectFilter = state => state.contactsReducer.filter;
+
+export const selectError = state => state.contactsReducer.contacts.error;
+
+export const selectIsLoading = state =>
+  state.contactsReducer.contacts.isLoading;
+
 const initialState = {
   contacts: {
     items: [],
